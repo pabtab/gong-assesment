@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchUsers } from "../services/firebase";
-import { buildHierarchy } from "../utils/hierarchy";
 import { UserTree } from "../components/UserTree";
 import { Header } from "../components/Header";
 import { UserMenu } from "../components/UserMenu";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect } from "react";
+import { useUsersStore } from "../store/usersStore";
 
 export function Hierarchy() {
   const { user, logout } = useAuth();
+  const { setUsers, removeUser, hierarchy, setHierarchy } = useUsersStore();
 
   const {
     data: users,
@@ -17,6 +19,13 @@ export function Hierarchy() {
     queryKey: ["users"],
     queryFn: () => fetchUsers(),
   });
+
+  useEffect(() => {
+    if (users) {
+      setUsers(users);
+      setHierarchy();
+    }
+  }, [users, setUsers, setHierarchy]);
 
   if (isLoading) {
     return (
@@ -48,8 +57,6 @@ export function Hierarchy() {
     );
   }
 
-  const hierarchy = users ? buildHierarchy(users) : [];
-
   return (
     <div className='min-h-screen flex flex-col bg-gray-50'>
       <Header
@@ -70,7 +77,7 @@ export function Hierarchy() {
           <div className='bg-white rounded-lg shadow-sm p-6'>
             <div role='tree' aria-label='Organization hierarchy'>
               {hierarchy.map((node) => (
-                <UserTree key={node.id} node={node} />
+                <UserTree key={node.id} node={node} removeUser={removeUser} />
               ))}
             </div>
           </div>

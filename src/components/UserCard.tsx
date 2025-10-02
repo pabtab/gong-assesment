@@ -1,12 +1,13 @@
 import { useState } from "react";
-import type { User } from "../types";
+import type { User, UserNode } from "../types";
 import { getInitials } from "../utils/encode";
 
 interface UserCardProps {
   user: User;
+  removeUser: (user: UserNode) => void;
 }
 
-export function UserCard({ user }: UserCardProps) {
+export function UserCard({ user, removeUser }: UserCardProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -39,6 +40,7 @@ export function UserCard({ user }: UserCardProps) {
         </h3>
         <p className='text-sm text-gray-600 truncate'>{user.email}</p>
       </div>
+      <button onClick={() => removeUser(user)}>Remove User</button>
     </div>
   );
 }

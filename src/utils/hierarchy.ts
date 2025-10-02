@@ -33,3 +33,21 @@ export function buildHierarchy(users: User[]): UserNode[] {
 
   return roots;
 }
+
+export function removeNode(users: User[], node: UserNode): User[] {
+  const newOrg = users
+    .filter((user) => user.id !== node.id)
+    .map((user) => {
+      if (user.managerId === node.id) {
+        if (node.managerId) {
+          user.managerId = node.managerId;
+        } else {
+          user.managerId = undefined;
+        }
+      }
+
+      return user;
+    });
+
+  return newOrg;
+}

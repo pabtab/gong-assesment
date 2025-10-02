@@ -4,12 +4,13 @@ import { UserCard } from "./UserCard";
 
 interface UserTreeProps {
   node: UserNode;
+  removeUser: (user: UserNode) => void;
   level?: number;
 }
 
 const TREE_INDENT_PX = 32;
 
-export function UserTree({ node, level = 0 }: UserTreeProps) {
+export function UserTree({ node, level = 0, removeUser }: UserTreeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children.length > 0;
 
@@ -37,14 +38,14 @@ export function UserTree({ node, level = 0 }: UserTreeProps) {
         )}
 
         <div className='flex-1'>
-          <UserCard user={node} />
+          <UserCard user={node} removeUser={removeUser} />
         </div>
       </div>
 
       {hasChildren && isExpanded && (
         <div role='group'>
           {node.children.map((child) => (
-            <UserTree key={child.id} node={child} level={level + 1} />
+            <UserTree key={child.id} node={child} level={level + 1} removeUser={removeUser} />
           ))}
         </div>
       )}
