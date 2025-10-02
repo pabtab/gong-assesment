@@ -1,23 +1,15 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchUsers } from "../services/firebase";
 import { buildHierarchy } from "../utils/hierarchy";
 import { UserTree } from "../components/UserTree";
 import { Header } from "../components/Header";
 import { UserMenu } from "../components/UserMenu";
 import { useAuth } from "../hooks/useAuth";
+import { useUsers } from "../hooks/useUsers";
 
 export function Hierarchy() {
   const { user, logout } = useAuth();
 
-  const {
-    data: users,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => fetchUsers(),
-  });
+  const { data: users, isLoading, error } = useUsers();
 
   // Memoize hierarchy calculation - O(n) operation that shouldn't run on every render
   const hierarchy = useMemo(() => {

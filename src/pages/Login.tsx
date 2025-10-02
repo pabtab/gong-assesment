@@ -1,31 +1,21 @@
 import { useActionState } from "react";
-import { validateUser } from "../services/firebase";
-import { encode } from "../utils/encode";
 import { Header } from "../components/Header";
-import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../hooks/useLoginMutation";
 
 export function Login() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  // Custom hook encapsulates login mutation logic + cache population
+  const loginMutation = useLoginMutation();
 
+  // Use useActionState for form handling (React 19 feature)
+  // Integrate with useMutation for caching benefits
   const [error, formAction, isPending] = useActionState(
     async (_prevState: string | null, formData: FormData) => {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
       try {
-        const secret = encode(email, password);
-
-        const user = await validateUser(secret);
-
-        login({
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        });
-
-        navigate("/hierarchy");
+        // Trigger the mutation and wait for it
+        await loginMutation.mutateAsync({ email, password });
         return null;
       } catch (err) {
         return err instanceof Error ? err.message : "Login failed";
