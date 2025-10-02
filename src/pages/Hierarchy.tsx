@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUsers } from "../services/firebase";
 import { buildHierarchy } from "../utils/hierarchy";
@@ -17,6 +18,11 @@ export function Hierarchy() {
     queryKey: ["users"],
     queryFn: () => fetchUsers(),
   });
+
+  // Memoize hierarchy calculation - O(n) operation that shouldn't run on every render
+  const hierarchy = useMemo(() => {
+    return users ? buildHierarchy(users) : [];
+  }, [users]);
 
   if (isLoading) {
     return (
@@ -47,8 +53,6 @@ export function Hierarchy() {
       </div>
     );
   }
-
-  const hierarchy = users ? buildHierarchy(users) : [];
 
   return (
     <div className='min-h-screen flex flex-col bg-gray-50'>

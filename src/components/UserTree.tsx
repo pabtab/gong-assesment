@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { UserNode } from "../types";
 import { UserCard } from "./UserCard";
 
@@ -13,20 +13,34 @@ export function UserTree({ node, level = 0 }: UserTreeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children.length > 0;
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  // Memoize toggle function - critical since this component is recursive
+  // Using functional update to avoid dependency on isExpanded
+  const toggleExpand = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
+
+  // Memoize inline style object to prevent recreation on every render
+  const paddingStyle = useMemo(
+    () => ({
+      paddingLeft: `${level * TREE_INDENT_PX}px`,
+    }),
+    [level]
+  );
+
+  // Memoize aria-label string to avoid recreation
+  const expandButtonLabel = useMemo(
+    () => `${isExpanded ? "Collapse" : "Expand"} ${node.firstName} ${node.lastName}'s team`,
+    [isExpanded, node.firstName, node.lastName]
+  );
 
   return (
     <div role='treeitem' aria-expanded={hasChildren ? isExpanded : undefined} aria-level={level + 1}>
-      <div style={{ paddingLeft: `${level * TREE_INDENT_PX}px` }} className='flex items-center gap-2'>
+      <div style={paddingStyle} className='flex items-center gap-2'>
         {hasChildren ? (
           <button
             onClick={toggleExpand}
             className='flex items-center cursor-pointer justify-center font-bold text-4xl'
-            aria-label={`${isExpanded ? "Collapse" : "Expand"} ${node.firstName} ${
-              node.lastName
-            }'s team`}
+            aria-label={expandButtonLabel}
           >
             {isExpanded ? "−" : "+"}
           </button>

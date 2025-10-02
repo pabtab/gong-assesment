@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { signOut } from "../services/firebase";
@@ -11,15 +12,20 @@ export function useAuth() {
   const navigate = useNavigate();
   const { user, isAuthenticated, setAuth, clearAuth } = useAuthStore();
 
-  const logout = () => {
+  // Memoize logout to prevent unnecessary re-renders of components that receive it as prop
+  const logout = useCallback(() => {
     signOut();
     clearAuth();
     navigate("/");
-  };
+  }, [clearAuth, navigate]);
 
-  const login = (userData: { email: string; firstName: string; lastName: string }) => {
-    setAuth(userData);
-  };
+  // Memoize login to maintain referential equality
+  const login = useCallback(
+    (userData: { email: string; firstName: string; lastName: string }) => {
+      setAuth(userData);
+    },
+    [setAuth]
+  );
 
   return {
     user,

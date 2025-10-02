@@ -1,10 +1,13 @@
+import { memo } from "react";
+
 interface UserMenuProps {
   firstName: string;
   lastName: string;
   onLogout: () => void;
 }
 
-export function UserMenu({ firstName, lastName, onLogout }: UserMenuProps) {
+// Memoize to prevent re-renders when onLogout callback is stable
+export const UserMenu = memo(function UserMenu({ firstName, lastName, onLogout }: UserMenuProps) {
   return (
     <div className='flex items-center gap-4'>
       <span className='text-gray-700 font-medium'>
@@ -18,4 +21,4 @@ export function UserMenu({ firstName, lastName, onLogout }: UserMenuProps) {
       </button>
     </div>
   );
-}
+});

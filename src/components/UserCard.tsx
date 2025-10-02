@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import type { User } from "../types";
 import { getInitials } from "../utils/encode";
 
@@ -6,8 +6,20 @@ interface UserCardProps {
   user: User;
 }
 
-export function UserCard({ user }: UserCardProps) {
+// Memoize component to prevent re-renders when parent re-renders but props haven't changed
+export const UserCard = memo(function UserCard({ user }: UserCardProps) {
   const [imageError, setImageError] = useState(false);
+
+  // Memoize initials calculation - runs for every user in the tree
+  const initials = useMemo(
+    () => getInitials(user.firstName, user.lastName),
+    [user.firstName, user.lastName]
+  );
+
+  // Memoize error handler to prevent recreation on every render
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
 
   return (
     <div className='flex items-center gap-4 p-4 rounded-lg transition-colors'>
@@ -19,16 +31,14 @@ export function UserCard({ user }: UserCardProps) {
             alt=''
             aria-hidden='true'
             className='w-12 h-12 rounded-full object-cover border-2 border-gray-200'
-            onError={() => {
-              setImageError(true);
-            }}
+            onError={handleImageError}
           />
         ) : (
           <div
             className='w-12 h-12 rounded-full border-2 border-purple-500 flex items-center justify-center text-black font-semibold text-lg'
             aria-hidden='true'
           >
-            {getInitials(user.firstName, user.lastName)}
+            {initials}
           </div>
         )}
       </div>
@@ -41,4 +51,4 @@ export function UserCard({ user }: UserCardProps) {
       </div>
     </div>
   );
-}
+});
